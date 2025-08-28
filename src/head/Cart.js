@@ -1,40 +1,21 @@
-import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useContext } from "react";
+import { CartContext } from "./CartContext";
 
 const Cart = ({ show, handleClose }) => {
-  const [cartElements, setCartElements] = useState([
-    {
-      title: "Colors",
-      price: 100,
-      imageUrl:
-        "https://prasadyash2411.github.io/ecom-website/img/Album%201.png",
-      quantity: 2,
-    },
-    {
-      title: "Black and white Colors",
-      price: 50,
-      imageUrl:
-        "https://prasadyash2411.github.io/ecom-website/img/Album%202.png",
-      quantity: 3,
-    },
-    {
-      title: "Yellow and Black Colors",
-      price: 70,
-      imageUrl:
-        "https://prasadyash2411.github.io/ecom-website/img/Album%203.png",
-      quantity: 1,
-    },
-  ]);
+  const { cartElements, setCartElements, removeFromCart } = useContext(CartContext);
 
-  const handleRemove = (index) => {
-    const newCart = [...cartElements];
-    newCart.splice(index, 1);
-    setCartElements(newCart);
+  const handleQuantityChange = (item, value) => {
+    const qty = parseInt(value);
+    if (isNaN(qty) || qty < 1) return; // prevent invalid or 0
+    setCartElements((prevCart) =>
+      prevCart.map((cartItem) =>
+        cartItem.title === item.title ? { ...cartItem, quantity: qty } : cartItem
+      )
+    );
   };
 
   return (
     <>
-      {/* Overlay */}
       {show && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100"
@@ -43,11 +24,10 @@ const Cart = ({ show, handleClose }) => {
         ></div>
       )}
 
-      {/* Right Sidebar */}
       <div
         className={`position-fixed top-0 end-0 bg-white shadow p-4`}
         style={{
-          width: "350px",
+          width: "450px",
           height: "100vh",
           overflowY: "auto",
           zIndex: 1000,
@@ -58,7 +38,7 @@ const Cart = ({ show, handleClose }) => {
         {/* Close Cross */}
         <button
           onClick={handleClose}
-          className="position-absolute top-0 end-0 m-2 btn btn-light border rounded-circle"
+          className="position-absolute top-0 end-0 m-2 btn btn-info"
           style={{ width: "30px", height: "30px", fontWeight: "bold" }}
         >
           ×
@@ -69,30 +49,61 @@ const Cart = ({ show, handleClose }) => {
         {cartElements.length === 0 ? (
           <p className="text-center">Your cart is empty!</p>
         ) : (
-          cartElements.map((item, index) => (
-            <div
-              key={index}
-              className="d-flex align-items-center mb-3 border-bottom pb-2"
-            >
-              <img
-                src={item.imageUrl}
-                alt={item.title}
-                style={{ width: "70px", height: "70px", objectFit: "cover" }}
-              />
-              <div className="ms-3 flex-grow-1">
-                <h5 className="mb-1">{item.title}</h5>
-                <p className="mb-1">
-                  ${item.price} × {item.quantity} = ${item.price * item.quantity}
-                </p>
-              </div>
-              <button
-                className="btn btn-sm btn-danger"
-                onClick={() => handleRemove(index)}
-              >
-                Remove
-              </button>
+          <>
+            {/* Headings */}
+            <div className="d-flex fw-bold border-bottom pb-2 mb-2">
+              <div style={{ flex: 2 }}>Item</div>
+              <div style={{ flex: 1, textAlign: "right" }}>Price</div>
+              <div style={{ flex: 1, textAlign: "center" }}>Qty</div>
+              <div style={{ flex: 1 }}></div> {/* Remove */}
             </div>
-          ))
+
+            {cartElements.map((item, index) => (
+              <div
+                key={index}
+                className="d-flex align-items-center mb-3 border-bottom pb-2"
+              >
+                {/* Item */}
+                <div style={{ flex: 2 }} className="d-flex align-items-center">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      objectFit: "cover",
+                      marginRight: "8px",
+                    }}
+                  />
+                  <span>{item.title}</span>
+                </div>
+
+                {/* Price */}
+                <div style={{ flex: 1, textAlign: "right" }}>${item.price}</div>
+
+                {/* Quantity input */}
+                <div style={{ flex: 1, textAlign: "center" }}>
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) => handleQuantityChange(item, e.target.value)}
+                    style={{ width: "60px", textAlign: "center" }}
+                  />
+                </div>
+
+                {/* Remove button */}
+                <div style={{ flex: 1, textAlign: "center" }}>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => removeFromCart(item.title)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </>
         )}
       </div>
     </>
