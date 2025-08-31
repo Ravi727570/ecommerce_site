@@ -1,7 +1,9 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useCallback, useMemo, useEffect } from "react";
 import "../head/Head.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { CartContext } from "../head/CartContext";
+import AddMovieForm from "../components/AddMovieForm";
+
 
 const productsArr = [
   {
@@ -28,13 +30,21 @@ const productsArr = [
 
 const Store = () => {
   const { addToCart } = useContext(CartContext);
+
   const [films, setFilms] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showMovies, setShowMovies] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const [cancelRetry, setCancelRetry] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
-  const fetchFilms = async () => {
+  
+
+  // Form state
+  
+
+  const fetchFilms = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -42,7 +52,6 @@ const Store = () => {
       if (!response.ok) throw new Error("API failed");
       const data = await response.json();
 
-      // Map fetched data to products images & price
       const filmsWithImages = data.results.map((film, index) => ({
         ...film,
         imageUrl: productsArr[index % productsArr.length].imageUrl,
@@ -51,119 +60,134 @@ const Store = () => {
       }));
 
       setFilms(filmsWithImages);
-      setRetrying(false); // stop retrying on success
+      setRetrying(false);
+      setShowMovies(true);
     } catch (err) {
       setError("Something went wrong ....Retrying");
       setRetrying(true);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  // Retry effect
+  // Retry logic
   useEffect(() => {
     let timer;
     if (retrying && !cancelRetry) {
-      timer = setTimeout(() => {
-        fetchFilms();
-      }, 5000);
+      timer = setTimeout(fetchFilms, 5000);
     }
     return () => clearTimeout(timer);
-  }, [retrying, cancelRetry]);
+  }, [retrying, cancelRetry, fetchFilms]);
+
+  const productElements = useMemo(() => {
+    return productsArr.map((product, index) => (
+      <div className="col-md-6 mb-4" key={index}>
+        <h5 className="mb-3">Album {index + 1}</h5>
+        <img
+          src={product.imageUrl}
+          alt={product.title}
+          className="d-block mx-auto img-fluid"
+          style={{ maxHeight: "300px" }}
+        />
+        <div className="card-body">
+          <h5 className="card-title m-3">{product.title}</h5>
+          <div
+            className="d-flex justify-content-between align-items-center mx-auto mt-2"
+            style={{ width: "250px" }}
+          >
+            <p className="fw-bold mb-0">${product.price}</p>
+            <button
+              className="btn btn-info text-white fw-bold"
+              onClick={() => addToCart(product)}
+            >
+              ADD TO CART
+            </button>
+          </div>
+
+          {/* Display movies info below images only if Load Movies clicked */}
+          {showMovies && films[index] && (
+            <div className="mt-3 text-start">
+              <p>
+                <strong>Episode:</strong> {films[index].episode_id}
+              </p>
+              <p>
+                <strong>Director:</strong> {films[index].director}
+              </p>
+              <p>
+                <strong>Release Date:</strong> {films[index].release_date}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    ));
+  }, [films, addToCart, showMovies]);
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      {/* Header */}
       <header className="bg-secondary text-center py-5">
         <h1 className="display-3 fw-bold text-white">The Generics</h1>
       </header>
 
-      {/* Main Content */}
       <main className="flex-grow-1">
         <section className="container my-5 text-center">
-          <h2 className="fw-bold">MUSIC</h2>
+  <h2 className="fw-bold">MUSIC</h2>
 
-          {/* Fetch Button */}
-          <button
-            className="btn btn-primary my-3"
-            onClick={() => {
-              setCancelRetry(false);
-              fetchFilms();
-            }}
-            disabled={isLoading}
-          >
-            {isLoading ? "Loading..." : "Load Films"}
-          </button>
+  {/* Add Movie Button */}
+  <div className="mb-3">
+    <button
+      className="btn btn-success"
+      style={{ width: "15%" }}
+      onClick={() => setShowForm(prev => !prev)}
+    >
+      {showForm ? "Hide Form" : "Add Movie"}
+    </button>
+  </div>
 
-          {/* Cancel Retry Button */}
-          {retrying && !cancelRetry && (
-            <button
-              className="btn btn-danger ms-3"
-              onClick={() => setCancelRetry(true)}
-            >
-              Cancel Retry
-            </button>
-          )}
+  {/* Add Movie Form */}
+  {showForm && (
+  <AddMovieForm
+    onAddMovie={(movie) => {
+      console.log("New Movie Added:", movie);
+      // Optional: add to films array
+      // setFilms((prev) => [...prev, movie]);
+    }}
+    onClose={() => setShowForm(false)}
+  />
+)}
 
-          {/* Loader */}
-          {isLoading && (
-            <div className="d-flex justify-content-center mt-3">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          )}
 
-          {/* Error */}
-          {error && !cancelRetry && (
-            <p className="text-danger mt-2">{error}</p>
-          )}
+  {/* Load Movies Button */}
+  <div className="mb-3">
+    <button
+      className="btn btn-primary"
+      style={{ width: "15%" }}
+      onClick={() => {
+        setShowMovies(true);
+        setCancelRetry(false);
+        fetchFilms();
+      }}
+      disabled={isLoading}
+    >
+      {isLoading ? "Loading..." : "Load Movies"}
+    </button>
+  </div>
 
-          {/* Products Grid */}
-          <div className="row mt-4">
-            {productsArr.map((product, index) => (
-              <div className="col-md-6 mb-4" key={index}>
-                <h5 className="mb-3">Album {index + 1}</h5>
-                <img
-                  src={product.imageUrl}
-                  alt={product.title}
-                  className="d-block mx-auto img-fluid"
-                  style={{ maxHeight: "300px" }}
-                />
-                <div className="card-body">
-                  <h5 className="card-title m-3">{product.title}</h5>
-                  <div
-                    className="d-flex justify-content-between align-items-center mx-auto mt-2"
-                    style={{ width: "250px" }}
-                  >
-                    <p className="fw-bold mb-0">${product.price}</p>
-                    <button
-                      className="btn btn-info text-white fw-bold"
-                      onClick={() => addToCart(product)}
-                    >
-                      ADD TO CART
-                    </button>
-                  </div>
+  {/* Retry / Error messages */}
+  {retrying && !cancelRetry && (
+    <button
+      className="btn btn-danger mb-3"
+      onClick={() => setCancelRetry(true)}
+    >
+      Cancel Retry
+    </button>
+  )}
+  {error && !cancelRetry && <p className="text-danger mt-2">{error}</p>}
 
-                  {/* Show fetched film info below product */}
-                  {films[index] && (
-                    <div className="mt-3 text-start">
-                      <p>
-                        <strong>Episode:</strong> {films[index].episode_id}
-                      </p>
-                      <p>
-                        <strong>Director:</strong> {films[index].director}
-                      </p>
-                      <p>
-                        <strong>Release Date:</strong> {films[index].release_date}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+  {/* Product / Movies Grid */}
+  <div className="row mt-4">{productElements}</div>
+</section>
+
       </main>
 
       <footer className="bg-info py-3 mt-auto">
