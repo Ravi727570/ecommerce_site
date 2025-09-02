@@ -4,6 +4,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { CartContext } from "../head/CartContext";
 import AddMovieForm from "../components/AddMovieForm";
 
+import { useNavigate } from "react-router-dom";
+
+
 
 const productsArr = [
   {
@@ -41,7 +44,8 @@ const Store = () => {
 
   
 
-  // Form state
+  // navigate
+  
   
 
   const fetchFilms = useCallback(async () => {
@@ -78,50 +82,50 @@ const Store = () => {
     }
     return () => clearTimeout(timer);
   }, [retrying, cancelRetry, fetchFilms]);
+const navigate = useNavigate();
 
   const productElements = useMemo(() => {
-    return productsArr.map((product, index) => (
-      <div className="col-md-6 mb-4" key={index}>
-        <h5 className="mb-3">Album {index + 1}</h5>
+  return productsArr.map((product, index) => (
+    <div className="col-md-6 mb-4" key={index}>
+      <div
+        className="h-100 cursor-pointer"
+        onClick={() => navigate(`/product/${index}`)} // Navigate to product page
+      >
         <img
           src={product.imageUrl}
           alt={product.title}
           className="d-block mx-auto img-fluid"
           style={{ maxHeight: "300px" }}
         />
-        <div className="card-body">
-          <h5 className="card-title m-3">{product.title}</h5>
-          <div
-            className="d-flex justify-content-between align-items-center mx-auto mt-2"
-            style={{ width: "250px" }}
-          >
-            <p className="fw-bold mb-0">${product.price}</p>
-            <button
-              className="btn btn-info text-white fw-bold"
-              onClick={() => addToCart(product)}
-            >
-              ADD TO CART
-            </button>
-          </div>
-
-          {/* Display movies info below images only if Load Movies clicked */}
-          {showMovies && films[index] && (
-            <div className="mt-3 text-start">
-              <p>
-                <strong>Episode:</strong> {films[index].episode_id}
-              </p>
-              <p>
-                <strong>Director:</strong> {films[index].director}
-              </p>
-              <p>
-                <strong>Release Date:</strong> {films[index].release_date}
-              </p>
-            </div>
-          )}
-        </div>
+        <div className="card-body text-center">
+          <h5 className="card-title">{product.title}</h5>
+          <p className="fw-bold">${product.price}</p>
+          
       </div>
-    ));
-  }, [films, addToCart, showMovies]);
+      <button
+          className="btn btn-info text-white fw-bold"
+          onClick={()=>addToCart(product)}
+          > Add to cart</button>
+        </div>
+
+      {/* Display movies info below images only if Load Movies clicked */}
+      {showMovies && films[index] && (
+        <div className="mt-3 text-start">
+          <p>
+            <strong>Episode:</strong> {films[index].episode_id}
+          </p>
+          <p>
+            <strong>Director:</strong> {films[index].director}
+          </p>
+          <p>
+            <strong>Release Date:</strong> {films[index].release_date}
+          </p>
+        </div>
+      )}
+    </div>
+  ));
+}, [films, showMovies,navigate,addToCart]);
+
 
   return (
     <div className="d-flex flex-column min-vh-100">
