@@ -5,9 +5,8 @@ import About from "./pages/About";
 import Store from "./pages/Store";
 import Home from "./pages/Home";
 import Cart from "./head/Cart";
+import AuthPage from "./pages/AuthPage"; // AuthPage import
 import { CartProvider } from "./head/CartContext";
-import ContactUs from "./pages/ContactUs";
-import ProductPage from "./pages/ProductPage"; // new page
 
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -15,16 +14,27 @@ function App() {
   return (
     <CartProvider>
       <Router>
-        <Navbar setCartOpen={setCartOpen} />
-        <Cart show={cartOpen} handleClose={() => setCartOpen(false)} />
+        {/* Only show Navbar for non-Auth pages */}
         <Routes>
-          {/* Redirect root (/) to /store */}
-          <Route path="/" element={<Navigate to="/store" replace />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/store" element={<Store />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/product/:id" element={<ProductPage />} />
+          <Route
+            path="/auth/*"
+            element={<AuthPage />}
+          />
+          <Route
+            path="/*"
+            element={
+              <>
+                <Navbar setCartOpen={setCartOpen} />
+                <Cart show={cartOpen} handleClose={() => setCartOpen(false)} />
+                <Routes>
+                  <Route path="/" element={<Navigate to="/store" replace />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/store" element={<Store />} />
+                  <Route path="/about" element={<About />} />
+                </Routes>
+              </>
+            }
+          />
         </Routes>
       </Router>
     </CartProvider>
