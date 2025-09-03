@@ -20,48 +20,52 @@ const AuthForm = () => {
     setIsProcessing(true);
     setError(null);
 
-    if (!isLogin) {
-      // Sign Up
-      fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCtwLDyIgie3wiULpZiBj8FP6cFbJ3QSqs",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email: enteredEmail,
-            password: enteredPassword,
-            returnSecureToken: true,
-          }),
-          headers: { "Content-Type": "application/json" },
+    // Decide URL based on login/signup
+    const url = isLogin
+      ? "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCtwLDyIgie3wiULpZiBj8FP6cFbJ3QSqs"
+      : "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCtwLDyIgie3wiULpZiBj8FP6cFbJ3QSqs";
+
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        email: enteredEmail,
+        password: enteredPassword,
+        returnSecureToken: true,
+      }),
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => {
+        setIsProcessing(false);
+        if (res.ok) {
+          return res.json();
+        } else {
+          return res.json().then((data) => {
+            let errorMessage = "Authentication failed!";
+            if (data && data.error && data.error.message) {
+              errorMessage = data.error.message;
+            }
+            setError(errorMessage);
+            alert(errorMessage);
+            throw new Error(errorMessage);
+          });
         }
-      )
-        .then((res) => {
-          setIsProcessing(false);
-          if (res.ok) {
-            alert("Sign up successful!");
-          } else {
-            return res.json().then((data) => {
-              let errorMessage = "Authentication failed!";
-              if (data && data.error && data.error.message) {
-                errorMessage = data.error.message;
-              }
-              alert(errorMessage);
-            });
-          }
-        })
-        .catch((err) => {
-          setIsProcessing(false);
-          setError(err.message || "Something went wrong!");
-        });
-    } else {
-      // Login logic placeholder
-      setIsProcessing(false);
-      alert("Login clicked");
-    }
+      })
+      .then((data) => {
+        if (isLogin) {
+          console.log("Login successful! JWT (idToken):", data.idToken);
+          alert("Login successful!");
+        } else {
+          alert("Sign Up successful!");
+        }
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
   };
 
   return (
     <div className="card mx-auto shadow p-4 bg-primary text-white" style={{ maxWidth: "400px" }}>
-      <h1 className="mb-4">{isLogin ? "Login" : "Sign Up"}</h1>
+      <h3 className="mb-4">{isLogin ? "Login" : "Sign Up"}</h3>
       <form onSubmit={submitHandler}>
         <div className="mb-3">
           <label className="form-label">Your Email:</label>
@@ -75,13 +79,15 @@ const AuthForm = () => {
 
         {error && <p className="text-danger">{error}</p>}
 
-            <button type="button" className="btn btn-secondary mb-2" onClick={switchAuthModeHandler}>
-            {isLogin ? "Create New Account" : "Login with Existing Account"}
-            </button>
-          <button type="submit" className="btn btn-info mb-2 " disabled={isProcessing}>
-            {isProcessing ? "Sending request..." : isLogin ? "Login" : "Create Account"}
+        <div className="d-flex gap-2">
+          <button type="submit" className="btn btn-info flex-fill" disabled={isProcessing}>
+            {isProcessing ? "Sending request..." : isLogin ? "Login" : "Sign Up"}
           </button>
 
+          <button type="button" className="btn btn-secondary flex-fill" onClick={switchAuthModeHandler}>
+            {isLogin ? "Create New Account" : "Login with Existing Account"}
+          </button>
+        </div>
       </form>
     </div>
   );
