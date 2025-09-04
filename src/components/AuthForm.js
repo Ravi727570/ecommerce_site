@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef,useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const AuthForm = () => {
   const emailInputRef = useRef();
@@ -6,7 +7,7 @@ const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-
+  const { login } = useContext(AuthContext);
   const switchAuthModeHandler = () => {
     setIsLogin((prev) => !prev);
     setError(null);
@@ -52,7 +53,7 @@ const AuthForm = () => {
       })
       .then((data) => {
         if (isLogin) {
-          console.log("Login successful! JWT (idToken):", data.idToken);
+          login("Login successful! JWT (idToken):", data.idToken);
           alert("Login successful!");
         } else {
           alert("Sign Up successful!");
@@ -94,3 +95,4 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
+
