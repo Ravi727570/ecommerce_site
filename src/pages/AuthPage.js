@@ -1,6 +1,8 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import AuthForm from "../components/AuthForm";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const AuthPage = () => {
   return (
@@ -32,3 +34,4 @@ const AuthPage = () => {
 };
 
 export default AuthPage;
+
