@@ -5,6 +5,7 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 const AuthPage = () => {
+  const { logout, isLoggedIn } = useContext(AuthContext);
   return (
     <div className="d-flex flex-column min-vh-100">
       {/* 🔹 Custom Header */}
@@ -34,4 +35,5 @@ const AuthPage = () => {
 };
 
 export default AuthPage;
+
 
