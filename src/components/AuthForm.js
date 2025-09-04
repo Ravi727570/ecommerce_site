@@ -57,8 +57,12 @@ const AuthForm = () => {
           login(data.idToken);
           localStorage.setItem("refreshToken", data.refreshToken); 
           alert("Login successful!");
+          emailInputRef.current.value = "";
+          passwordInputRef.current.value = "";
         } else {
           alert("Sign Up successful!");
+          emailInputRef.current.value = "";
+          passwordInputRef.current.value = "";
         }
       })
       .catch((err) => {
@@ -97,3 +101,4 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
+
