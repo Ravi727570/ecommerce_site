@@ -7,19 +7,17 @@ import Home from "./pages/Home";
 import Cart from "./head/Cart";
 import AuthPage from "./pages/AuthPage"; // AuthPage import
 import { CartProvider } from "./head/CartContext";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
 
   return (
+  <AuthProvider>
     <CartProvider>
       <Router>
-        {/* Only show Navbar for non-Auth pages */}
         <Routes>
-          <Route
-            path="/auth/*"
-            element={<AuthPage />}
-          />
+          <Route path="/auth/*" element={<AuthPage />}/>
           <Route
             path="/*"
             element={
@@ -38,6 +36,7 @@ function App() {
         </Routes>
       </Router>
     </CartProvider>
+  </AuthProvider>
   );
 }
 
