@@ -1,6 +1,7 @@
 import { useState, useRef,useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
+
 const AuthForm = () => {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
@@ -53,7 +54,8 @@ const AuthForm = () => {
       })
       .then((data) => {
         if (isLogin) {
-          login("Login successful! JWT (idToken):", data.idToken);
+          login(data.idToken);
+          localStorage.setItem("refreshToken", data.refreshToken); 
           alert("Login successful!");
         } else {
           alert("Sign Up successful!");
@@ -95,4 +97,3 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
-
