@@ -17,7 +17,9 @@ function App() {
     <CartProvider>
       <Router>
         <Routes>
+          <Route path="/login" element={<LoginPage />} /> 
           <Route path="/auth/*" element={<AuthPage />}/>
+          <Route path="/auth/profile" element={<ProfilePage />} />
           <Route
             path="/*"
             element={
@@ -29,6 +31,9 @@ function App() {
                   <Route path="/home" element={<Home />} />
                   <Route path="/store" element={<Store />} />
                   <Route path="/about" element={<About />} />
+                  <Route path="/login" element={<LoginPage />} />
+                    <Route path="/contact" element={<ContactUs/>}/>
+                    <Route path="/products/:id" element={<ProductPage />} />
                 </Routes>
               </>
             }
