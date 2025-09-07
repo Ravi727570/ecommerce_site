@@ -42,7 +42,7 @@ const LoginPage = () => {
       }
 
       // Successful login
-      login(data.idToken);
+      login(data.idToken,enteredEmail);
       localStorage.setItem("refreshToken", data.refreshToken);
       navigate("/store"); // redirect to products page
 
