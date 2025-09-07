@@ -2,24 +2,29 @@ import React, { useContext } from "react";
 import { CartContext } from "./CartContext";
 
 const Cart = ({ show, handleClose }) => {
-  const { cartElements, setCartElements, removeFromCart } = useContext(CartContext);
+  
 
-  const handleQuantityChange = (item, value) => {
-    const qty = parseInt(value);
-    if (isNaN(qty) || qty < 1) return; // prevent invalid or 0
-    setCartElements((prevCart) =>
-      prevCart.map((cartItem) =>
-        cartItem.title === item.title ? { ...cartItem, quantity: qty } : cartItem
-      )
-    );
-  };
+  // Quantity handler
+  const { cartElements, removeFromCart, updateQuantity,clearCart } = useContext(CartContext);
+const handleQuantityChange = (item, value) => {
+  const qty = parseInt(value);
+  if (isNaN(qty) || qty < 1) return; // prevent invalid or 0
+  updateQuantity(item.title, qty);
+};
+
+
+  // Calculate total
+  const totalPrice = cartElements.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
 
   return (
     <>
       {show && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 999 }}
+          
           onClick={handleClose}
         ></div>
       )}
@@ -55,9 +60,10 @@ const Cart = ({ show, handleClose }) => {
               <div style={{ flex: 2 }}>Item</div>
               <div style={{ flex: 1, textAlign: "right" }}>Price</div>
               <div style={{ flex: 1, textAlign: "center" }}>Qty</div>
-              <div style={{ flex: 1 }}></div> {/* Remove */}
+              <div style={{ flex: 1 }}></div>
             </div>
 
+            {/* Cart Items */}
             {cartElements.map((item, index) => (
               <div
                 key={index}
@@ -79,7 +85,9 @@ const Cart = ({ show, handleClose }) => {
                 </div>
 
                 {/* Price */}
-                <div style={{ flex: 1, textAlign: "right" }}>${item.price}</div>
+                <div style={{ flex: 1, textAlign: "right" }}>
+                  ${item.price}
+                </div>
 
                 {/* Quantity input */}
                 <div style={{ flex: 1, textAlign: "center" }}>
@@ -103,6 +111,24 @@ const Cart = ({ show, handleClose }) => {
                 </div>
               </div>
             ))}
+
+            {/* Total + Purchase */}
+            <div className="mt-4 border-top pt-3">
+  <h5 className="text-end">
+    <span>Total:</span>
+    <span>${totalPrice.toFixed(2)}</span>
+  </h5>
+
+  <div className="d-flex justify-content-center">
+    <button className="btn btn-success w-50 mt-4"onClick={() => {
+      alert("Thanks for purchasing!");
+      clearCart();      // Reset cart
+      handleClose();    // Close cart modal
+    }}>
+      Purchase
+    </button>
+  </div>
+</div>
           </>
         )}
       </div>
