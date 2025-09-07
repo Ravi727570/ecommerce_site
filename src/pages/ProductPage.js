@@ -59,7 +59,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     // Simulate fetching product by ID
-    const fetchedProduct = productsArr[id];
+    const fetchedProduct = productsArr[Number(id)];
     setProduct(fetchedProduct);
   }, [id]);
 
