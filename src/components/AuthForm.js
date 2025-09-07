@@ -1,5 +1,5 @@
 import { useState, useRef,useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext"; // ✅ import context
 
 
 const AuthForm = () => {
@@ -8,7 +8,7 @@ const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const { login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext); // ✅ get login function
   const switchAuthModeHandler = () => {
     setIsLogin((prev) => !prev);
     setError(null);
@@ -101,4 +101,3 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
-
